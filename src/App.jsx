@@ -7,8 +7,10 @@ import Upload from './pages/Upload';
 import History from './pages/History';
 import Profile from './pages/Profile';
 import UserManagement from './pages/UserManagement';
+import ExamPage from './pages/ExamPage';
 import { AuthProvider, PERMISSIONS } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import { sampleExam } from './data/sampleExam';
 
 function App() {
   return (
@@ -43,6 +45,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route 
+            path="exam/sample" 
+            element={<ExamPage examData={sampleExam} />} 
+          />
+          <Route path="exam/:id" element={<ExamPage />} />
         </Route>
       </Routes>
     </AuthProvider>

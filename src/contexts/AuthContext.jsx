@@ -37,13 +37,34 @@ const ROLE_PERMISSIONS = {
   [ROLES.STUDENT]: [],
 };
 
+// Test credentials
+const TEST_CREDENTIALS = {
+  'admin@admin.com': {
+    password: 'admin',
+    role: ROLES.ADMIN,
+    name: 'Admin User'
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const login = async (email, password) => {
-    // Mock login - replace with actual API call
+    // Check test credentials
+    if (TEST_CREDENTIALS[email] && TEST_CREDENTIALS[email].password === password) {
+      const testUser = {
+        id: '1',
+        email,
+        role: TEST_CREDENTIALS[email].role,
+        name: TEST_CREDENTIALS[email].name
+      };
+      setUser(testUser);
+      return;
+    }
+
+    // Mock login for other users
     const mockUser = {
-      id: '1',
+      id: '2',
       email,
       role: ROLES.TEACHER,
       name: 'John Doe'
@@ -52,12 +73,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password, role = ROLES.STUDENT) => {
-    // Mock registration - replace with actual API call
     const mockUser = {
-      id: '1',
+      id: '3',
       email,
       role,
-      name: 'John Doe'
+      name: 'New User'
     };
     setUser(mockUser);
   };

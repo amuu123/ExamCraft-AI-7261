@@ -2,79 +2,50 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import ExamInterface from '../components/exam/ExamInterface';
 import ResultsScreen from '../components/exam/ResultsScreen';
+import { useParams } from 'react-router-dom';
+import { sampleExam } from '../data/sampleExam';
 
-const ExamPage = () => {
+const ExamPage = ({ examData = null }) => {
   const [examState, setExamState] = useState('active'); // 'active' or 'completed'
   const [examResults, setExamResults] = useState(null);
+  const { id } = useParams();
 
-  // Mock exam data - replace with actual data from your backend
-  const examData = {
-    title: 'Sample Exam',
-    questions: [
-      {
-        type: 'multiple-choice',
-        question: 'What is the capital of France?',
-        options: ['London', 'Berlin', 'Paris', 'Madrid'],
-        correctAnswer: 2,
-        explanation: 'Paris is the capital and largest city of France.'
-      },
-      // Add more questions...
-    ]
-  };
+  // Use provided examData or sampleExam for demo
+  const currentExam = examData || (id === 'sample' ? sampleExam : null);
 
   const handleExamComplete = (results) => {
     setExamResults(results);
     setExamState('completed');
   };
 
+  if (!currentExam) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Exam Not Found</h2>
+          <p className="text-gray-600">The requested exam could not be found.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {examState === 'active' ? (
-        <ExamInterface
-          questions={examData.questions}
+        <ExamInterface 
+          questions={currentExam.questions}
           onComplete={handleExamComplete}
+          timeLimit={currentExam.timeLimit}
         />
       ) : (
         <ResultsScreen
-          examData={examData}
+          examData={currentExam}
           answers={examResults.answers}
-          correctAnswers={examData.questions.map(q => q.correctAnswer)}
+          correctAnswers={currentExam.questions.map(q => q.correctAnswer)}
         />
       )}
     </div>
   );
 };
 
-export default ExamPage;</QustAction>
-
-<QuestAction type="file" filePath="src/App.jsx">
-import { Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Upload from './pages/Upload';
-import History from './pages/History';
-import Profile from './pages/Profile';
-import ExamPage from './pages/ExamPage';
-import { AuthProvider } from './contexts/AuthContext';
-
-function App() {
-  return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="upload" element={<Upload />} />
-          <Route path="history" element={<History />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="exam/:id" element={<ExamPage />} />
-        </Route>
-      </Routes>
-    </AuthProvider>
-  );
-}
-
-export default App;
+export default ExamPage;

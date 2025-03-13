@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiClock, FiFlag, FiMenu, FiCheck, FiX } from 'react-icons/fi';
+import { FiClock, FiFlag, FiMenu } from 'react-icons/fi';
 import QuestionNavigator from './QuestionNavigator';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar';
 
-const ExamInterface = ({ questions, onComplete }) => {
+const ExamInterface = ({ questions, onComplete, timeLimit }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [flagged, setFlagged] = useState(new Set());
   const [showNavigator, setShowNavigator] = useState(true);
-  const [timeLimit, setTimeLimit] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
@@ -48,12 +47,11 @@ const ExamInterface = ({ questions, onComplete }) => {
 
   const handleSubmit = () => {
     setIsSubmitted(true);
-    const results = {
+    onComplete({
       answers,
       flagged: Array.from(flagged),
-      timeSpent: timeLimit ? timeLimit - remainingTime : null
-    };
-    onComplete(results);
+      timeSpent: timeLimit || null
+    });
   };
 
   const handleNext = () => {
@@ -86,7 +84,9 @@ const ExamInterface = ({ questions, onComplete }) => {
               <FiMenu className="h-6 w-6" />
             </button>
             <div className="flex items-center space-x-4">
-              {timeLimit && <Timer initialTime={timeLimit} onTimeUp={handleSubmit} />}
+              {timeLimit && (
+                <Timer initialTime={timeLimit} onTimeUp={handleSubmit} />
+              )}
               <button
                 onClick={handleFlag}
                 className={`p-2 rounded-lg flex items-center ${
@@ -124,31 +124,19 @@ const ExamInterface = ({ questions, onComplete }) => {
                 {questions[currentIndex].question}
               </h2>
               <div className="space-y-4">
-                {questions[currentIndex].type === 'multiple-choice' && (
-                  <div className="space-y-2">
-                    {questions[currentIndex].options.map((option, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleAnswer(idx)}
-                        className={`w-full p-4 text-left rounded-lg border transition-colors ${
-                          answers[currentIndex] === idx
-                            ? 'border-primary-500 bg-primary-50'
-                            : 'border-gray-200 hover:border-primary-200'
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {questions[currentIndex].type === 'short-answer' && (
-                  <textarea
-                    value={answers[currentIndex] || ''}
-                    onChange={(e) => handleAnswer(e.target.value)}
-                    placeholder="Enter your answer here..."
-                    className="w-full h-32 p-4 border border-gray-200 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                  />
-                )}
+                {questions[currentIndex].options.map((option, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleAnswer(idx)}
+                    className={`w-full p-4 text-left rounded-lg border transition-colors ${
+                      answers[currentIndex] === idx
+                        ? 'border-primary-500 bg-primary-50'
+                        : 'border-gray-200 hover:border-primary-200'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
             </motion.div>
           </AnimatePresence>
